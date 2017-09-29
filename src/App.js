@@ -1,24 +1,5 @@
 import React, { Component } from 'react';
 
-class App extends Component {
-  constructor(props){
-    super(props);
-    this.state = {
-    }
-  }
-
-  // Card & CardList
-
-  render() {
-    const {  } = this.state;
-    return (
-      <div className="App">
-        <CardList />
-      </div>
-    );
-  }
-}
-
 const data = [
   {avatar_url: "https://avatars2.githubusercontent.com/u/22999983?v=4",
   name: "Szymon",
@@ -26,7 +7,49 @@ const data = [
   {avatar_url: "https://avatars2.githubusercontent.com/u/22999984?v=4",
   name: "Kazik",
   location: "Lublin"},
-]
+];
+
+const url = `https://api.github.com/users/jakeirs`;
+
+class App extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      cards: [],
+      inputValue: ''
+    }
+  }
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+    fetch(`https://api.github.com/users/${this.state.inputValue}`)
+      .then( response => response.json() )
+      .then( response => this.addNewCard(response) )
+  }
+
+  handleChange = (event) => {
+    const inputValue = event.target.value;
+    this.setState({ inputValue });
+  }
+
+  addNewCard = (cardInfo) => {
+    this.setState( prevState => ({cards: prevState.cards.concat(cardInfo)}) )
+  }
+
+  render() {
+    const { cards, inputValue } = this.state;
+    return (
+      <div className="App">
+        <Form
+          inputValue={inputValue}
+          handleChange={this.handleChange}
+          handleSubmit={this.handleSubmit}
+        />
+        <CardList cards={cards} />
+      </div>
+    );
+  }
+}
 
 const Card = (props) => {
   const {name, location, avatar_url} = props
@@ -41,23 +64,30 @@ const Card = (props) => {
   )
 }
 
-const CardList = (props) => {
-  
+const CardList = (props) => {  
   return (
     <div>
       {
-        data.map(user => (
-          <Card
-            {
-            ...user
-            }
-          />
+        props.cards.map(user => (
+          <Card key={user.id} {...user} />          
         ))
       }
     </div>
   )
-}
+};
 
+const Form = (props) => {
+  const {inputValue, handleChange, handleSubmit} = props
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        onChange={handleChange} 
+        value={inputValue}
+      />
+      <button type="submit">Submit</button>
+    </form>
+  )
+}
 
 
 export default App;
