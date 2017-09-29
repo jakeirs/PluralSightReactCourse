@@ -4,50 +4,60 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      counter: 0
     }
   }
 
-  incrementCounter = (incrementValue) => {
-    this.setState( prevState => ({
-      counter: prevState.counter + incrementValue
-    }) );
-  }
+  // Card & CardList
 
   render() {
-    const { counter } = this.state;
+    const {  } = this.state;
     return (
       <div className="App">
-        <Button
-          incrementValue={1}
-          onClickHandler={this.incrementCounter}
-         />
-         <Button
-          incrementValue={10}
-          onClickHandler={this.incrementCounter}
-         />
-         <Button
-          incrementValue={100}
-          onClickHandler={this.incrementCounter}
-         />
-        <Result
-          counter={counter}
-         /> 
+        <CardList />
       </div>
     );
   }
 }
 
-const Button = (props) =>
-  <button
-    onClick={ () =>  props.onClickHandler(props.incrementValue) }
-  >
-    +{props.incrementValue}
-  </button>
+const data = [
+  {avatar_url: "https://avatars2.githubusercontent.com/u/22999983?v=4",
+  name: "Szymon",
+  location: "Warsaw"},
+  {avatar_url: "https://avatars2.githubusercontent.com/u/22999984?v=4",
+  name: "Kazik",
+  location: "Lublin"},
+]
 
-const Result = (props) => 
-  <div>
-    {props.counter}
-  </div>  
+const Card = (props) => {
+  const {name, location, avatar_url} = props
+  return (
+    <div>
+      <img width="95" src={avatar_url} />
+      <div style={{ display: 'inline-block', marginLeft: 10 }}>
+        <div style={{ fontSize: '1.25em', fontWeight: 'bold' }}>{name}</div>
+        <div>{location}</div>
+      </div>
+    </div>
+  )
+}
+
+const CardList = (props) => {
+  
+  return (
+    <div>
+      {
+        data.map(user => (
+          <Card
+            {
+            ...user
+            }
+          />
+        ))
+      }
+    </div>
+  )
+}
+
+
 
 export default App;
