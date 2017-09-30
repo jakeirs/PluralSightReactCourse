@@ -1,94 +1,119 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 
-const data = [
-  {avatar_url: "https://avatars2.githubusercontent.com/u/22999983?v=4",
-  name: "Szymon",
-  location: "Warsaw"},
-  {avatar_url: "https://avatars2.githubusercontent.com/u/22999984?v=4",
-  name: "Kazik",
-  location: "Lublin"},
-];
+const Stars = (props) => {
 
-const url = `https://api.github.com/users/jakeirs`;
+  return (
+    <div className="col-5">
+      { _.range(props.numberOfStars).map(i =>
+        <i key={i} className="fa fa-star"></i>
+      )}      
+    </div>
+  )
+}
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+const Button = (props) => {
 
-    this.state = {
-      cards: [],
-      inputValue: '',
+  return (
+    <div className="col-2">
+      <button className="btn" disabled={props.selectedNumbers.length === 0}>
+        =
+      </button>
+    </div>
+  )
+}
+
+const Answer = (props) => {
+  
+  return (
+    <div className="col-5">
+      {props.selectedNumbers.map((number, i) => 
+        <span key={i} onClick={() => props.unselectNumber(number)} >
+          {number}
+        </span>
+      )}
+    </div>
+  )
+}
+
+const Numbers = (props) => {
+  const classNameSelected = (number) => {
+    if(props.selectedNumbers.indexOf(number) >= 0 ) {
+      return 'selected';
     }
   }
+  return (
+    <div className="card text-center">
+      <div>     
+        {Numbers.list.map((number, i) => 
+          <span key={i} className={classNameSelected(number)}
+                onClick={() => props.selectNumber(number)}
+          >{number}</span>
+        )}   
+      </div>
+    </div>
+  )
+}
 
-  fetchNewCard = (event, user) => {
-    event.preventDefault();
-    const url = `https://api.github.com/users/${user}`;
-    fetch(url)
-      .then(resp => resp.json())
-      .then(resp => this.addNewCard(resp));
+Numbers.list = _.range(1, 10);
+
+class Game extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedNumbers: [],
+      randomNumberOfStars: 1 + Math.floor(Math.random() * 9)
+    };
   }
 
-  addNewCard = (newCard) => {
+  selectNumber = (clickedNumber) => {
+    if (this.state.selectedNumbers.indexOf(clickedNumber) >= 0) { return; }
     this.setState(prevState => ({
-      cards: prevState.cards.concat(newCard)
+      selectedNumbers: prevState.selectedNumbers.concat(clickedNumber)
     }));
   }
 
-  handleChange = (event) => {
-    event.preventDefault();
-    const inputValue = event.target.value;
+  unselectNumber = (clickedNumber) => {
     this.setState(prevState => ({
-      inputValue
-    }));
+      selectedNumbers: prevState.selectedNumbers
+                                .filter(number => number !== clickedNumber)
+    }))
   }
 
-  render () {
-    const { cards, inputValue } = this.state;
+  render() {
+    const {selectedNumbers, randomNumberOfStars} = this.state;
     return (
-      <div>
-        <Form 
-          value={inputValue}
-          onChangeFunction={this.handleChange}
-          onSubmitFunction={this.fetchNewCard} 
-        />
-        <CardList cards={cards} />
+      <div className="container">
+        <h3>Play Nine</h3>
+        <hr />
+        <div className="row">
+          <Stars numberOfStars={randomNumberOfStars}/>
+          <Button selectedNumbers={selectedNumbers} />
+          <Answer selectedNumbers={selectedNumbers}
+                  unselectNumber={this.unselectNumber} />
+        </div> 
+        <br />
+        <Numbers selectedNumbers={selectedNumbers}
+                 selectNumber={this.selectNumber} />     
       </div>
     )
   }
 }
 
-const Card = (props) => {
-  return (
-    <div>
-      <img width="100" src={props.avatar_url} />
-      <div style={{ display: 'inline-block', marginLeft: 20, marginBottom: 20 }}>
-        <div style={{ fontSize: '1.25em', fontWeight: 'bold' }}>{props.name}</div>
-        <div >{props.location}</div>
+class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {}
+  }
+  
+  render() {
+    return (
+      <div>
+        <Game />
       </div>
-    </div>
-  )
-}
-
-const CardList = (props) => {
-  return (
-    <div>
-      {
-        props.cards.map( card => (
-          <Card key={card.id} {...card}/>
-        ))
-      }
-    </div>
-  )
-}
-
-const Form = (props) => {
-  return (
-    <form onSubmit={(event) => props.onSubmitFunction(event, props.value)} >
-      <input onChange={props.onChangeFunction} value={props.value} />
-      <button type="submit">Submit</button>
-    </form>
-  )
+    )
+  }
 }
 
 
