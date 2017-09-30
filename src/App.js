@@ -12,82 +12,85 @@ const data = [
 const url = `https://api.github.com/users/jakeirs`;
 
 class App extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
+
     this.state = {
       cards: [],
-      inputValue: ''
+      inputValue: '',
     }
   }
 
-  handleSubmit = (event) => {
+  fetchNewCard = (event, user) => {
     event.preventDefault();
-    fetch(`https://api.github.com/users/${this.state.inputValue}`)
-      .then( response => response.json() )
-      .then( response => this.addNewCard(response) )
+    const url = `https://api.github.com/users/${user}`;
+    fetch(url)
+      .then(resp => resp.json())
+      .then(resp => this.addNewCard(resp));
+  }
+
+  addNewCard = (newCard) => {
+    this.setState(prevState => ({
+      cards: prevState.cards.concat(newCard)
+    }));
   }
 
   handleChange = (event) => {
+    event.preventDefault();
     const inputValue = event.target.value;
-    this.setState({ inputValue });
+    this.setState(prevState => ({
+      inputValue
+    }));
   }
 
-  addNewCard = (cardInfo) => {
-    this.setState( prevState => ({cards: prevState.cards.concat(cardInfo)}) )
-  }
-
-  render() {
+  render () {
     const { cards, inputValue } = this.state;
     return (
-      <div className="App">
-        <Form
-          inputValue={inputValue}
-          handleChange={this.handleChange}
-          handleSubmit={this.handleSubmit}
+      <div>
+        <Form 
+          value={inputValue}
+          onChangeFunction={this.handleChange}
+          onSubmitFunction={this.fetchNewCard} 
         />
         <CardList cards={cards} />
       </div>
-    );
+    )
   }
 }
 
 const Card = (props) => {
-  const {name, location, avatar_url} = props
   return (
     <div>
-      <img width="95" src={avatar_url} />
-      <div style={{ display: 'inline-block', marginLeft: 10 }}>
-        <div style={{ fontSize: '1.25em', fontWeight: 'bold' }}>{name}</div>
-        <div>{location}</div>
+      <img width="100" src={props.avatar_url} />
+      <div style={{ display: 'inline-block', marginLeft: 20, marginBottom: 20 }}>
+        <div style={{ fontSize: '1.25em', fontWeight: 'bold' }}>{props.name}</div>
+        <div >{props.location}</div>
       </div>
     </div>
   )
 }
 
-const CardList = (props) => {  
+const CardList = (props) => {
   return (
     <div>
       {
-        props.cards.map(user => (
-          <Card key={user.id} {...user} />          
+        props.cards.map( card => (
+          <Card key={card.id} {...card}/>
         ))
       }
     </div>
   )
-};
+}
 
 const Form = (props) => {
-  const {inputValue, handleChange, handleSubmit} = props
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        onChange={handleChange} 
-        value={inputValue}
-      />
+    <form onSubmit={(event) => props.onSubmitFunction(event, props.value)} >
+      <input onChange={props.onChangeFunction} value={props.value} />
       <button type="submit">Submit</button>
     </form>
   )
 }
+
 
 
 export default App;
