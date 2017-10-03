@@ -125,7 +125,7 @@ class Game extends Component {
       randomNumberOfStars: Game.randomNumber(),
       answerIsCorrect: null,
       redraws: 5,
-      doneStatus: 'Game Over!',
+      doneStatus: null,
     };
   }
   
@@ -159,7 +159,7 @@ class Game extends Component {
       selectedNumbers: [],
       answerIsCorrect: null,
       randomNumberOfStars: Game.randomNumber(),
-    }));
+    }), this.updateDoneStatus );
   }
 
   redraw = () => {    
@@ -177,7 +177,7 @@ class Game extends Component {
     const possibleNumbers = _.range(1, 10).filter(number =>
       usedNumbers.indexOf(number) === -1
     );
-
+    console.log('possibleCombination' ,possibleCombinationSum(possibleNumbers, randomNumberOfStars))
     return possibleCombinationSum(possibleNumbers, randomNumberOfStars);
   }
 
@@ -189,8 +189,7 @@ class Game extends Component {
       if (prevState.redraws === 0 && !this.possibleSolutions(prevState)) {
         return { doneStatus: 'Game Over!' }
       }
-
-      });
+    });
   }
 
   render() {
@@ -245,7 +244,5 @@ class App extends Component {
     )
   }
 }
-
-
 
 export default App;
